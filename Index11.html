@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyFlow</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Segoe UI",sans-serif;
+  background:linear-gradient(135deg,#eef2ff,#f8fafc);
+}
+
+/* HEADER */
+header{
+  background:#fff;
+  padding:20px 30px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 5px 20px rgba(0,0,0,.06);
+}
+
+.logo{
+  font-size:26px;
+  font-weight:700;
+  color:#7c3aed;
+}
+
+nav button{
+  border:none;
+  background:none;
+  padding:10px 16px;
+  font-size:16px;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+nav button.active{
+  background:#e0e7ff;
+  color:#4338ca;
+}
+
+/* SECTIONS */
+section{
+  display:none;
+  max-width:900px;
+  margin:40px auto;
+  padding:20px;
+}
+section.active{display:block}
+
+/* CARDS */
+.card{
+  background:#fff;
+  border-radius:22px;
+  padding:40px;
+  margin-bottom:30px;
+  box-shadow:0 15px 40px rgba(0,0,0,.08);
+  text-align:center;
+}
+
+.hero h1{font-size:44px}
+.hero p{font-size:18px;color:#555}
+
+/* BUTTONS */
+button.main{
+  padding:14px 28px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  cursor:pointer;
+  background:#7c3aed;
+  color:#fff;
+  margin:5px;
+}
+
+button.secondary{
+  background:#e5e7eb;
+  color:#111;
+}
+
+/* TIMER */
+.timer{
+  font-size:64px;
+  margin:20px 0;
+}
+
+/* INPUTS */
+input,select{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  margin-top:10px;
+  font-size:16px;
+}
+
+.flex{display:flex;gap:15px}
+.cat{font-size:90px}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">StudyFlow</div>
+  <nav>
+    <button class="active" onclick="show('home',this)">Home</button>
+    <button onclick="show('quiz',this)">Quiz</button>
+    <button onclick="show('pomodoro',this)">Pomodoro</button>
+    <button onclick="show('focus',this)">Focus Centre</button>
+  </nav>
+</header>
+
+<!-- HOME -->
+<section id="home" class="active">
+  <div class="card hero">
+    <h1>Study Smarter</h1>
+    <p>Focus better, learn faster, and grow with your study cat</p>
+  </div>
+
+  <div class="card">
+    <h2>Study Quiz</h2>
+    <p>Discover your best study techniques</p>
+    <button class="main" onclick="show('quiz')">Start Quiz</button>
+  </div>
+
+  <div class="card">
+    <h2>Pomodoro Timer</h2>
+    <p>Work smarter with timed focus sessions</p>
+    <button class="main" onclick="show('pomodoro')">Open Timer</button>
+  </div>
+
+  <div class="card">
+    <h2>Focus Centre</h2>
+    <p>Study with your cat and earn points</p>
+    <button class="main" onclick="show('focus')">Enter Focus</button>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz">
+  <div class="card">
+    <h2>Study Style Quiz</h2>
+    <p>Select what feels most natural to you:</p>
+
+    <select id="style">
+      <option>Visual</option>
+      <option>Auditory</option>
+      <option>Reading/Writing</option>
+      <option>Hands-on</option>
+    </select>
+
+    <button class="main" onclick="quiz()">Get Results</button>
+    <p id="quizResult" style="white-space:pre-line;margin-top:20px"></p>
+  </div>
+</section>
+
+<!-- POMODORO -->
+<section id="pomodoro">
+  <div class="card">
+    <h2>Pomodoro Timer</h2>
+
+    <div class="flex">
+      <div>
+        <label>Work (min)</label>
+        <input id="work" value="25">
+      </div>
+      <div>
+        <label>Break (min)</label>
+        <input id="break" value="5">
+      </div>
+    </div>
+
+    <div class="timer" id="pomoTimer">25:00</div>
+
+    <button class="main" onclick="startPomo()">Start</button>
+    <button class="main secondary" onclick="pausePomo()">Pause</button>
+    <button class="main secondary" onclick="resetPomo()">Reset</button>
+  </div>
+</section>
+
+<!-- FOCUS -->
+<section id="focus">
+  <div class="card">
+    <h2>Focus Centre</h2>
+    <div class="cat" id="cat">😺</div>
+    <p id="status">Ready to focus</p>
+    <p>Points: <span id="points">0</span></p>
+
+    <div class="timer" id="focusTimer">25:00</div>
+
+    <button class="main" onclick="startFocus()">Start</button>
+    <button class="main secondary" onclick="pauseFocus()">Pause</button>
+    <button class="main secondary" onclick="resetFocus()">Reset</button>
+  </div>
+</section>
+
+<script>
+/* NAV */
+function show(id,btn){
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+}
+
+/* QUIZ – REAL TECHNIQUES */
+function quiz(){
+  const s=document.getElementById("style").value;
+  let result="";
+
+  if(s==="Visual"){
+    result=
+    "You learn best visually.\n\n"+
+    "✔ Use flashcards with diagrams and images\n"+
+    "✔ Color-code notes and highlight patterns\n"+
+    "✔ Create mind maps for complex topics\n"+
+    "✔ Watch short explainer videos\n"+
+    "✔ Combine visuals with Pomodoro sessions";
+  }
+
+  if(s==="Auditory"){
+    result=
+    "You learn best through listening.\n\n"+
+    "✔ Explain topics out loud (teach-back method)\n"+
+    "✔ Record and replay voice notes\n"+
+    "✔ Study with instrumental or white noise\n"+
+    "✔ Join discussions or study groups\n"+
+    "✔ Read notes aloud during breaks";
+  }
+
+  if(s==="Reading/Writing"){
+    result=
+    "You learn best by reading and writing.\n\n"+
+    "✔ Rewrite notes in your own words\n"+
+    "✔ Use active recall (write from memory)\n"+
+    "✔ Turn headings into questions\n"+
+    "✔ Make short summaries after each session\n"+
+    "✔ Use Pomodoro to write focused notes";
+  }
+
+  if(s==="Hands-on"){
+    result=
+    "You learn best by doing.\n\n"+
+    "✔ Practice with real questions or past papers\n"+
+    "✔ Apply concepts immediately after learning\n"+
+    "✔ Use the Feynman Technique\n"+
+    "✔ Build examples or mini projects\n"+
+    "✔ Study in short, active Pomodoro bursts";
+  }
+
+  document.getElementById("quizResult").innerText=result;
+}
+
+/* POMODORO */
+let pTime=1500,pInt=null;
+function startPomo(){
+  if(pInt) return;
+  pInt=setInterval(()=>{
+    if(pTime<=0){pausePomo();return;}
+    pTime--; updatePomo();
+  },1000);
+}
+function pausePomo(){ clearInterval(pInt); pInt=null; }
+function resetPomo(){
+  pausePomo();
+  pTime=document.getElementById("work").value*60;
+  updatePomo();
+}
+function updatePomo(){
+  let m=Math.floor(pTime/60), s=pTime%60;
+  document.getElementById("pomoTimer").textContent=
+    `${m}:${s.toString().padStart(2,"0")}`;
+}
+
+/* FOCUS */
+let fTime=1500,fInt=null,points=0;
+function startFocus(){
+  if(fInt) return;
+  fInt=setInterval(()=>{
+    if(fTime<=0){
+      pauseFocus();
+      document.getElementById("cat").innerText="😻";
+      document.getElementById("status").innerText="Amazing focus!";
+      return;
+    }
+    fTime--; updateFocus();
+    if(fTime%300===0){
+      points++;
+      document.getElementById("points").innerText=points;
+      document.getElementById("cat").innerText="😸";
+    }
+  },1000);
+}
+function pauseFocus(){ clearInterval(fInt); fInt=null; }
+function resetFocus(){
+  pauseFocus();
+  fTime=1500; points=0;
+  document.getElementById("points").innerText=0;
+  document.getElementById("cat").innerText="😺";
+  document.getElementById("status").innerText="Ready to focus";
+  updateFocus();
+}
+function updateFocus(){
+  let m=Math.floor(fTime/60), s=fTime%60;
+  document.getElementById("focusTimer").textContent=
+    `${m}:${s.toString().padStart(2,"0")}`;
+}
+</script>
+
+</body>
+</html>
